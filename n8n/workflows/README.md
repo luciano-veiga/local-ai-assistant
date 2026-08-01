@@ -1,8 +1,8 @@
-# n8n Workflows
+# Workflows do n8n
 
-Export your actual workflows from the n8n UI (⋮ menu → Download) and place them here as JSON files. Expected files:
+Exporte seus workflows reais pela interface do n8n (menu ⋮ → Download) e coloque aqui como arquivos JSON. Arquivos esperados:
 
-- `ingestion.json` — watches/reads the shared folder, chunks documents, generates embeddings, and upserts vectors into Qdrant.
-- `agent.json` — receives the WhatsApp webhook, runs the AI Agent node (Ollama + Qdrant retrieval), and sends the response back via the Evolution API.
+- `ingestion.json` — monitora/lê a pasta compartilhada, faz o chunking dos documentos, gera embeddings e insere os vetores no Qdrant.
+- `agent.json` — recebe o webhook do WhatsApp, executa o nó AI Agent (Ollama + recuperação via Qdrant) e envia a resposta de volta através da Evolution API.
 
-**Before committing:** double-check exported JSON files for any embedded credentials, API keys, or personal file paths — n8n exports can sometimes include these. Sanitize before pushing to a public repo.
+**Antes de commitar:** revise os arquivos JSON exportados em busca de credenciais embutidas, chaves de API ou caminhos de arquivo pessoais — exports do n8n às vezes incluem isso. Higienize antes de subir para um repositório público.

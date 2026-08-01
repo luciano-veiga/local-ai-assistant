@@ -1,6 +1,6 @@
-# Setup Guide
+# Guia de instalação
 
-## 1. Install Ollama (native, host machine)
+## 1. Instale o Ollama (nativo, máquina host)
 
 ```bash
 curl -fsSL https://ollama.com/install.sh | sh
@@ -8,47 +8,47 @@ ollama pull llama3.2
 ollama pull nomic-embed-text
 ```
 
-Running Ollama natively (not in Docker) is recommended for CPU-only setups — it avoids virtualization overhead and gives the model direct access to host resources.
+Rodar o Ollama nativamente (fora do Docker) é recomendado para configurações apenas com CPU — evita overhead de virtualização e dá ao modelo acesso direto aos recursos do host.
 
-## 2. Start the Docker stack
+## 2. Suba a stack Docker
 
 ```bash
 cp .env.example .env
-# edit .env with your own credentials and IPs
+# edite o .env com suas próprias credenciais e IPs
 docker compose up -d
 ```
 
-This starts:
-- **Qdrant** on `localhost:6333`
-- **Evolution API** on `localhost:8080`
-- **n8n** on `localhost:5678`
+Isso inicia:
+- **Qdrant** em `localhost:6333`
+- **Evolution API** em `localhost:8080`
+- **n8n** em `localhost:5678`
 
-## 3. Connect WhatsApp
+## 3. Conecte o WhatsApp
 
-1. Open `http://localhost:8080` and create an instance in Evolution API
-2. Scan the QR code with your dedicated WhatsApp number
-3. Set the webhook URL to your n8n instance's webhook endpoint
+1. Abra `http://localhost:8080` e crie uma instância na Evolution API
+2. Escaneie o QR code com seu número dedicado de WhatsApp
+3. Configure a URL do webhook apontando para o endpoint de webhook da sua instância n8n
 
-## 4. Import n8n workflows
+## 4. Importe os workflows do n8n
 
-In the n8n UI (`http://localhost:5678`):
+Na interface do n8n (`http://localhost:5678`):
 
-1. Import `n8n/workflows/ingestion.json`
-2. Import `n8n/workflows/agent.json`
-3. Configure credentials for Ollama (base URL) and Qdrant (URL + collection name)
-4. Activate both workflows
+1. Importe `n8n/workflows/ingestion.json`
+2. Importe `n8n/workflows/agent.json`
+3. Configure as credenciais do Ollama (URL base) e do Qdrant (URL + nome da coleção)
+4. Ative os dois workflows
 
-## 5. Ingest documents
+## 5. Indexe seus documentos
 
-Place files in the `./shared` folder (mounted into n8n as `/data/shared`) and manually trigger the ingestion workflow, or configure a folder watcher for automatic indexing.
+Coloque arquivos na pasta `./shared` (montada no n8n como `/data/shared`) e dispare manualmente o workflow de ingestão, ou configure um monitor de pasta para indexação automática.
 
-## 6. Test
+## 6. Teste
 
-Send a message to your dedicated WhatsApp number. The agent should respond using both the local LLM and any relevant context retrieved from your indexed documents.
+Envie uma mensagem para seu número dedicado de WhatsApp. O agente deve responder usando tanto o LLM local quanto qualquer contexto relevante recuperado dos seus documentos indexados.
 
-## Performance Tips (CPU-only)
+## Dicas de desempenho (apenas CPU)
 
-- Prefer quantized models in the 3B–7B range (e.g., Q4_K_M quantization)
-- Keep the context window (`ctx-size`) modest to reduce memory pressure
-- Monitor resource usage with `docker stats` alongside `htop` for the native Ollama process
-- If responses are too slow, try a smaller model before increasing context size
+- Prefira modelos quantizados na faixa de 3B a 7B (ex: quantização Q4_K_M)
+- Mantenha a janela de contexto (`ctx-size`) modesta para reduzir a pressão de memória
+- Monitore o uso de recursos com `docker stats` junto com `htop` para o processo nativo do Ollama
+- Se as respostas estiverem muito lentas, tente um modelo menor antes de aumentar o contexto

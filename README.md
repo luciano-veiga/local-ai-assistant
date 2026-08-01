@@ -1,122 +1,122 @@
-# Local AI Assistant — RAG + WhatsApp + n8n
+# Assistente de IA Local — RAG + WhatsApp + n8n
 
-A fully self-hosted personal AI assistant built with **local LLMs**, **Retrieval-Augmented Generation (RAG)**, and **workflow automation** — no paid cloud APIs required. The assistant runs entirely on local hardware (CPU-only, no GPU needed) and is reachable via WhatsApp.
+Um assistente de IA pessoal totalmente self-hosted, construído com **LLMs locais**, **Retrieval-Augmented Generation (RAG)** e **automação de workflows** — sem depender de nenhuma API paga na nuvem. O assistente roda inteiramente em hardware local (funciona sem GPU) e é acessível via WhatsApp.
 
-![Architecture](assets/architecture.png)
+![Arquitetura](assets/architecture.png)
 
-## ✨ Overview
+## ✨ Visão geral
 
-This project combines a self-hosted low-code automation platform with a local LLM runtime and a vector database to create a personal assistant that can:
+Este projeto combina uma plataforma de automação low-code self-hosted com um runtime de LLM local e um banco de dados vetorial para criar um assistente pessoal capaz de:
 
-- Answer questions using a locally-run language model (no data leaves your machine)
-- Retrieve relevant context from a personal knowledge base (PDFs, notes, docs) via RAG
-- Be accessed conversationally through WhatsApp
-- Run scheduled/automated tasks (reminders, digests, lookups)
+- Responder perguntas usando um modelo de linguagem rodando localmente (nenhum dado sai da sua máquina)
+- Recuperar contexto relevante de uma base de conhecimento pessoal (PDFs, notas, documentos) via RAG
+- Ser acessado de forma conversacional pelo WhatsApp
+- Executar tarefas agendadas/automatizadas (lembretes, resumos, buscas)
 
-The entire stack runs on consumer-grade hardware — no GPU required, tested on a CPU-only setup with 16GB RAM.
+Toda a stack roda em hardware de consumo — sem necessidade de GPU, testado em uma configuração apenas com CPU e 16GB de RAM.
 
 ## 🧱 Stack
 
-| Component | Role |
+| Componente | Função |
 |---|---|
-| [n8n](https://n8n.io/) | Low-code workflow orchestration & agent logic |
-| [Ollama](https://ollama.com/) | Local LLM inference (chat + embeddings) |
-| [Qdrant](https://qdrant.tech/) | Vector store for RAG (document retrieval) |
-| [Evolution API](https://github.com/EvolutionAPI/evolution-api) | Unofficial WhatsApp gateway (webhook-based) |
-| Docker Compose | Container orchestration |
+| [n8n](https://n8n.io/) | Orquestração de workflows e lógica do agente (low-code) |
+| [Ollama](https://ollama.com/) | Inferência de LLM local (chat + embeddings) |
+| [Qdrant](https://qdrant.tech/) | Banco de dados vetorial para RAG (recuperação de documentos) |
+| [Evolution API](https://github.com/EvolutionAPI/evolution-api) | Gateway não-oficial de WhatsApp (baseado em webhook) |
+| Docker Compose | Orquestração dos containers |
 
-## 🏗️ Architecture
+## 🏗️ Arquitetura
 
 ```
-WhatsApp (dedicated number)
+WhatsApp (número dedicado)
       │
       ▼
-Evolution API (WhatsApp gateway, webhook)
+Evolution API (gateway WhatsApp, webhook)
       │
       ▼
 n8n Webhook Trigger
       │
       ▼
 n8n AI Agent Node
-      ├── Ollama Chat Model (local LLM)
-      └── Qdrant Vector Store (RAG retrieval)
+      ├── Ollama Chat Model (LLM local)
+      └── Qdrant Vector Store (busca RAG)
                 ▲
                 │
         Ollama Embeddings
                 ▲
                 │
-   Document Ingestion Workflow (PDFs, notes, docs)
+   Workflow de Ingestão de Documentos (PDFs, notas, docs)
 ```
 
-## 🚀 Getting Started
+## 🚀 Como começar
 
-### Prerequisites
+### Pré-requisitos
 
-- Docker & Docker Compose
-- ~16GB RAM (CPU-only inference supported; no GPU required)
-- A dedicated phone number for the WhatsApp integration (recommended, to isolate it from personal use)
+- Docker e Docker Compose
+- ~16GB de RAM (inferência apenas em CPU é suportada; GPU não é necessária)
+- Um número de telefone dedicado para a integração com WhatsApp (recomendado, para isolar do uso pessoal)
 
-### 1. Clone and configure
+### 1. Clone e configure
 
 ```bash
-git clone https://github.com/<your-username>/local-ai-assistant.git
+git clone https://github.com/<seu-usuario>/local-ai-assistant.git
 cd local-ai-assistant
 cp .env.example .env
-# edit .env with your own values
+# edite o .env com seus próprios valores
 ```
 
-### 2. Start the stack
+### 2. Suba a stack
 
 ```bash
 docker compose up -d
 ```
 
-This brings up n8n, Qdrant, and Evolution API. Ollama is expected to run separately (natively or in its own container) — see [docs/setup.md](docs/setup.md).
+Isso sobe o n8n, o Qdrant e a Evolution API. Espera-se que o Ollama rode separadamente (nativamente ou em seu próprio container) — veja [docs/setup.md](docs/setup.md).
 
-### 3. Pull the models
+### 3. Baixe os modelos
 
 ```bash
-ollama pull llama3.2        # chat model
-ollama pull nomic-embed-text  # embeddings model
+ollama pull llama3.2        # modelo de chat
+ollama pull nomic-embed-text  # modelo de embeddings
 ```
 
-### 4. Connect WhatsApp
+### 4. Conecte o WhatsApp
 
-1. Open the Evolution API instance and scan the QR code with your dedicated number
-2. Import the workflows from `n8n/workflows/` into your n8n instance
-3. Configure the webhook URL in Evolution API to point to your n8n webhook
+1. Abra a instância da Evolution API e escaneie o QR code com o número dedicado
+2. Importe os workflows de `n8n/workflows/` para sua instância do n8n
+3. Configure a URL do webhook na Evolution API apontando para o webhook do n8n
 
-### 5. Ingest your knowledge base
+### 5. Indexe sua base de conhecimento
 
-Run the ingestion workflow (`n8n/workflows/ingestion.json`) to index your documents into Qdrant. Drop files into the shared folder and trigger the workflow.
+Rode o workflow de ingestão (`n8n/workflows/ingestion.json`) para indexar seus documentos no Qdrant. Coloque os arquivos na pasta compartilhada e dispare o workflow.
 
-## 📂 Repository Structure
+## 📂 Estrutura do repositório
 
 ```
 .
 ├── docker-compose.yml       # Qdrant + Evolution API + n8n
-├── .env.example             # Environment variable template
+├── .env.example             # Template de variáveis de ambiente
 ├── n8n/
-│   └── workflows/           # Exported n8n workflow JSON files
+│   └── workflows/           # Workflows do n8n exportados em JSON
 ├── docs/
-│   ├── architecture.md      # Detailed architecture notes
-│   └── setup.md             # Full setup walkthrough
-└── assets/                  # Diagrams and screenshots
+│   ├── architecture.md      # Notas detalhadas de arquitetura
+│   └── setup.md             # Passo a passo completo de instalação
+└── assets/                  # Diagramas e capturas de tela
 ```
 
-## 💡 Why local-first?
+## 💡 Por que local-first?
 
-- **Privacy**: no personal data or conversations sent to third-party APIs
-- **Cost**: zero recurring API costs — only the (optional) SIM card for WhatsApp
-- **Learning**: hands-on experience with LLM orchestration, vector search, and workflow automation
+- **Privacidade**: nenhum dado pessoal ou conversa é enviado para APIs de terceiros
+- **Custo**: zero custo recorrente de API — apenas o chip SIM (opcional) para o WhatsApp
+- **Aprendizado**: experiência prática com orquestração de LLM, busca vetorial e automação de workflows
 
 ## 🛣️ Roadmap
 
-- [ ] Add support for multiple knowledge bases (per-topic collections in Qdrant)
-- [ ] Add conversation memory/persistence
-- [ ] Explore lightweight quantized models for faster CPU inference
-- [ ] Add scheduled digest workflows
+- [ ] Suporte a múltiplas bases de conhecimento (coleções por tópico no Qdrant)
+- [ ] Adicionar memória/persistência de conversa
+- [ ] Explorar modelos quantizados mais leves para inferência mais rápida em CPU
+- [ ] Adicionar workflows de resumo agendado
 
-## 📜 License
+## 📜 Licença
 
-MIT — see [LICENSE](LICENSE)
+MIT — veja [LICENSE](LICENSE)

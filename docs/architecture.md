@@ -1,44 +1,44 @@
-# Architecture
+# Arquitetura
 
-## Overview
+## Visão geral
 
-This assistant is built as a set of loosely-coupled services orchestrated by n8n, with all AI inference happening locally through Ollama.
+Este assistente é construído como um conjunto de serviços fracamente acoplados, orquestrados pelo n8n, com toda a inferência de IA acontecendo localmente através do Ollama.
 
-## Components
+## Componentes
 
-### 1. WhatsApp Gateway (Evolution API)
+### 1. Gateway de WhatsApp (Evolution API)
 
-Acts as an unofficial WhatsApp client, connected via QR code pairing to a dedicated phone number. Forwards incoming messages to n8n via webhook, and exposes an endpoint to send messages back.
+Atua como um cliente não-oficial de WhatsApp, conectado via pareamento por QR code a um número de telefone dedicado. Encaminha mensagens recebidas para o n8n via webhook, e expõe um endpoint para enviar mensagens de volta.
 
-Chosen over the official WhatsApp Cloud API for simplicity of setup in a personal/low-volume context — no Business verification required. Can be swapped for the official Meta Cloud API without changing the rest of the stack, since n8n only interacts with a webhook + HTTP endpoint contract.
+Escolhido em vez da API oficial WhatsApp Cloud pela simplicidade de configuração em um contexto pessoal/de baixo volume — não exige verificação de conta Business. Pode ser substituído pela API oficial da Meta sem alterar o restante da stack, já que o n8n interage apenas com um contrato de webhook + endpoint HTTP.
 
-### 2. Orchestration (n8n)
+### 2. Orquestração (n8n)
 
-Two main workflow types:
+Dois tipos principais de workflow:
 
-- **Ingestion workflow**: watches a shared folder for new documents, chunks them, generates embeddings via Ollama, and stores vectors in Qdrant.
-- **Agent workflow**: receives incoming WhatsApp messages via webhook, passes them to an AI Agent node configured with:
-  - Ollama as the chat model
-  - Qdrant as a retrieval tool (RAG)
-  - Response sent back through the Evolution API
+- **Workflow de ingestão**: monitora uma pasta compartilhada em busca de novos documentos, faz o chunking, gera embeddings via Ollama e armazena os vetores no Qdrant.
+- **Workflow do agente**: recebe mensagens de WhatsApp via webhook, repassa para um nó AI Agent configurado com:
+  - Ollama como modelo de chat
+  - Qdrant como ferramenta de recuperação (RAG)
+  - Resposta enviada de volta através da Evolution API
 
-### 3. LLM Inference (Ollama)
+### 3. Inferência de LLM (Ollama)
 
-Runs both the chat model and the embedding model. Deployed natively on the host (rather than in Docker) for better performance on CPU-only setups — avoids the overhead of containerized access to host resources.
+Executa tanto o modelo de chat quanto o modelo de embeddings. Implantado nativamente no host (em vez de em Docker) para melhor desempenho em configurações apenas com CPU — evita o overhead de acesso containerizado aos recursos do host.
 
-Model selection is tuned for CPU-only inference on 16GB RAM: small quantized models (3B–7B range) rather than larger models that would require a GPU or induce heavy swapping.
+A escolha do modelo é ajustada para inferência em CPU com 16GB de RAM: modelos pequenos e quantizados (faixa de 3B a 7B) em vez de modelos maiores que exigiriam GPU ou causariam troca de memória (swap) excessiva.
 
-### 4. Vector Store (Qdrant)
+### 4. Banco vetorial (Qdrant)
 
-Stores embeddings of the personal knowledge base for retrieval-augmented generation. Keeps responses grounded in the actual source documents rather than relying purely on model recall.
+Armazena os embeddings da base de conhecimento pessoal para retrieval-augmented generation. Mantém as respostas fundamentadas nos documentos-fonte reais, em vez de depender puramente da memória do modelo.
 
-## Data Flow
+## Fluxo de dados
 
-1. Documents are dropped into the shared folder and indexed once via the ingestion workflow.
-2. A WhatsApp message arrives → Evolution API webhook → n8n.
-3. The AI Agent node queries Qdrant for relevant context, then queries Ollama with the augmented prompt.
-4. The response is sent back to WhatsApp via the Evolution API.
+1. Documentos são colocados na pasta compartilhada e indexados uma vez através do workflow de ingestão.
+2. Uma mensagem de WhatsApp chega → webhook da Evolution API → n8n.
+3. O nó AI Agent consulta o Qdrant em busca de contexto relevante, depois consulta o Ollama com o prompt aumentado.
+4. A resposta é enviada de volta ao WhatsApp através da Evolution API.
 
-## Hardware Notes
+## Notas sobre hardware
 
-Tested on: Intel i5 (8th gen), 16GB DDR4, no dedicated GPU. All inference runs on CPU. Model size and context window were deliberately kept small to keep latency reasonable without a GPU.
+Testado em: Intel i5 (8ª geração), 16GB DDR4, sem GPU dedicada. Toda a inferência roda em CPU. O tamanho do modelo e a janela de contexto foram deliberadamente mantidos pequenos para manter a latência razoável sem GPU.
