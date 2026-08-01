@@ -2,7 +2,8 @@
 
 Um assistente de IA pessoal totalmente self-hosted, construído com **LLMs locais**, **Retrieval-Augmented Generation (RAG)** e **automação de workflows** — sem depender de nenhuma API paga na nuvem. O assistente roda inteiramente em hardware local (funciona sem GPU) e é acessível via WhatsApp.
 
-![Arquitetura](assets/architecture.png)
+<img width="552" height="849" alt="Ollama `+ n8n" src="https://github.com/user-attachments/assets/03c18d79-76b3-4f32-ac6d-7c5f791c18bc" />
+
 
 ## ✨ Visão geral
 
